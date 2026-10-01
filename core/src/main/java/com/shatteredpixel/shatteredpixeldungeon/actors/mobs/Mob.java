@@ -48,6 +48,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SwarmIntelTracker;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.perception.HearingSensor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.perception.PerceptionSystem;
+import com.shatteredpixel.shatteredpixeldungeon.actors.perception.Sensor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.perception.VisionSensor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
@@ -122,6 +126,27 @@ public abstract class Mob extends Char {
 	public AiState FLEEING		= new Fleeing();
 	public AiState PASSIVE		= new Passive();
 	public AiState state = SLEEPING;
+
+	private final ArrayList<Sensor> sensors = new ArrayList<>();
+
+	public ArrayList<Sensor> sensors() {
+		return sensors;
+	}
+
+	protected void configureSensors() {
+		sensors.add(new VisionSensor(this, 8, 120, initialVisionDirection()));
+		sensors.add(new HearingSensor(this, 8));
+	}
+
+	protected float initialVisionDirection() {
+		return 0;
+	}
+
+	public void visionDirection(float direction) {
+		for (Sensor sensor : sensors) {
+			if (sensor instanceof VisionSensor) ((VisionSensor)sensor).direction(direction);
+		}
+	}
 	
 	public Class<? extends CharSprite> spriteClass;
 	
@@ -141,6 +166,7 @@ public abstract class Mob extends Char {
 
 	protected boolean firstAdded = true;
 	protected void onAdd(){
+		if (sensors.isEmpty()) configureSensors();
 		if (firstAdded) {
 			//modify health for ascension challenge if applicable, only on first add
 			float percent = HP / (float) HT;
@@ -280,6 +306,8 @@ public abstract class Mob extends Char {
 			spend( TICK );
 			return true;
 		}
+
+		PerceptionSystem.observeVisibleTargets(this);
 
 		if (buff(Terror.class) != null || buff(Dread.class) != null ){
 			state = FLEEING;

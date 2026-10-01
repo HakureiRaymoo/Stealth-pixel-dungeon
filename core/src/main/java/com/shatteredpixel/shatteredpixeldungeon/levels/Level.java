@@ -513,6 +513,12 @@ public abstract class Level implements Bundlable {
 		return width;
 	}
 
+	private int losRevision;
+
+	public int losRevision() {
+		return losRevision;
+	}
+
 	public int height() {
 		return height;
 	}
@@ -867,7 +873,6 @@ public abstract class Level implements Bundlable {
 			water[i]        = (flags & Terrain.LIQUID) != 0;
 			pit[i]          = (flags & Terrain.PIT) != 0;
 		}
-
 		for (Blob b : blobs.values()){
 			b.onBuildFlagMaps(this);
 		}
@@ -885,6 +890,7 @@ public abstract class Level implements Bundlable {
 			passable[i + width()-1] = avoid[i + width()-1] = false;
 			losBlocking[i + width()-1] = solid[i + width()-1] = true;
 		}
+		losRevision++;
 
 		//an open space is large enough to fit large mobs. A space is open when it is not solid
 		// and there is an open corner with both adjacent cells opens
@@ -974,6 +980,7 @@ public abstract class Level implements Bundlable {
 	}
 
 	public void updateCellFlags( int cell ){
+		boolean wasLosBlocking = losBlocking[cell];
 		int terrain = map[cell];
 
 		int flags = Terrain.flags[terrain];
@@ -995,6 +1002,7 @@ public abstract class Level implements Bundlable {
 		for (Blob b : blobs.values()){
 			b.onUpdateCellFlags(this, cell);
 		}
+		if (wasLosBlocking != losBlocking[cell]) losRevision++;
 
 		updateOpenSpace(cell);
 	}

@@ -221,6 +221,7 @@ public class WndSettings extends WndTabbed {
 		ColorBlock sep1;
 		CheckBox chkFullscreen;
 		CheckBox chkLandscape;
+		CheckBox chkPerceptionDebug;
 		ColorBlock sep2;
 		OptionSlider optBrightness;
 		OptionSlider optVisGrid;
@@ -268,6 +269,16 @@ public class WndSettings extends WndTabbed {
 				chkLandscape.checked(SPDSettings.landscape());
 				add(chkLandscape);
 			}
+
+			chkPerceptionDebug = new CheckBox("Perception areas") {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					SPDSettings.perceptionDebug(checked());
+				}
+			};
+			chkPerceptionDebug.checked(SPDSettings.perceptionDebug());
+			add(chkPerceptionDebug);
 
 			sep2 = new ColorBlock(1, 1, 0xFF000000);
 			add(sep2);
@@ -332,6 +343,9 @@ public class WndSettings extends WndTabbed {
 				chkLandscape.setRect(0, bottom + GAP, width, BTN_HEIGHT);
 				bottom = chkLandscape.bottom();
 			}
+
+			chkPerceptionDebug.setRect(0, bottom + GAP, width, BTN_HEIGHT);
+			bottom = chkPerceptionDebug.bottom();
 
 			sep2.size(width, 1);
 			sep2.y = bottom + GAP;

@@ -56,6 +56,7 @@ public class SPDSettings extends GameSettings {
 	public static final String KEY_GRID 	    = "visual_grid";
 	public static final String KEY_CAMERA_FOLLOW= "camera_follow";
 	public static final String KEY_SCREEN_SHAKE = "screen_shake";
+	public static final String KEY_PERCEPTION_DEBUG = "perception_debug";
 	
 	public static void fullscreen( boolean value ) {
 		put( KEY_FULLSCREEN, value );
@@ -116,6 +117,14 @@ public class SPDSettings extends GameSettings {
 
 	public static int screenShake() {
 		return getInt( KEY_SCREEN_SHAKE, 2, 0, 4 );
+	}
+
+	public static void perceptionDebug(boolean value) {
+		put(KEY_PERCEPTION_DEBUG, value);
+	}
+
+	public static boolean perceptionDebug() {
+		return getBoolean(KEY_PERCEPTION_DEBUG, false);
 	}
 	
 	//Interface
