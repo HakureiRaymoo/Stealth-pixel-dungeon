@@ -48,6 +48,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SwarmIntelTracker;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.ai.MobMind;
+import com.shatteredpixel.shatteredpixeldungeon.actors.ai.adapter.SPDMobAdapter;
 import com.shatteredpixel.shatteredpixeldungeon.actors.perception.HearingSensor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.perception.PerceptionSystem;
 import com.shatteredpixel.shatteredpixeldungeon.actors.perception.Sensor;
@@ -126,6 +128,17 @@ public abstract class Mob extends Char {
 	public AiState FLEEING		= new Fleeing();
 	public AiState PASSIVE		= new Passive();
 	public AiState state = SLEEPING;
+
+	protected MobMind mind;
+
+	public MobMind mind() {
+		if (mind == null) mind = new MobMind(new SPDMobAdapter(this));
+		return mind;
+	}
+
+	public MobMind mindIfCreated() {
+		return mind;
+	}
 
 	private final ArrayList<Sensor> sensors = new ArrayList<>();
 

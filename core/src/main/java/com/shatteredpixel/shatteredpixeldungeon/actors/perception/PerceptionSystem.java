@@ -45,9 +45,17 @@ public class PerceptionSystem {
 	}
 
 	private static void addEvent(PerceptionEvent event) {
-		if (event == null || duplicate(event)) return;
+		if (event == null || event.isExpired(Actor.now()) || duplicate(event)) return;
 		events.add(event);
+		dispatchToMind(event);
 		if (events.size() > MAX_EVENTS) events.remove(0);
+	}
+
+	private static void dispatchToMind(PerceptionEvent event) {
+		if (event.observer == null) return;
+		if (event.observer.mindIfCreated() != null) {
+			event.observer.mindIfCreated().processPerceptionEvent(event);
+		}
 	}
 
 	private static boolean duplicate(PerceptionEvent event) {

@@ -37,6 +37,10 @@ public class BehaviorController {
 		return turnsRemaining;
 	}
 
+	public float direction() {
+		return adapter.direction();
+	}
+
 	public boolean isTurning() {
 		return mind.behaviorState() == BehaviorState.TURNING;
 	}

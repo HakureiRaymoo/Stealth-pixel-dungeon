@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.ai;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.perception.PerceptionEvent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.perception.PerceptionType;
 
@@ -28,22 +29,21 @@ public class MobMind {
 	private BehaviorState behaviorState;
 	private final SuspicionMemory suspicionMemory;
 	private final PerceptionMemory perceptionMemory;
+	private final MobAIAdapter adapter;
 
-	public MobMind() {
-		this(ActivityState.SLEEPING, new SuspicionMemory());
+	public MobMind(MobAIAdapter adapter) {
+		this(ActivityState.SLEEPING, adapter);
 	}
 
 	/** Creates an unaware mind with the mob's configured routine activity. */
-	public MobMind(ActivityState initialActivityState) {
-		this(initialActivityState, new SuspicionMemory());
-	}
-
-	private MobMind(ActivityState initialActivityState, SuspicionMemory suspicionMemory) {
+	public MobMind(ActivityState initialActivityState, MobAIAdapter adapter) {
+		if (adapter == null) throw new IllegalArgumentException("adapter must not be null");
 		setActivityState(initialActivityState);
 		alertState = AlertState.UNAWARE;
 		behaviorState = BehaviorState.IDLE;
-		this.suspicionMemory = suspicionMemory;
+		this.suspicionMemory = new SuspicionMemory();
 		perceptionMemory = new PerceptionMemory();
+		this.adapter = adapter;
 	}
 
 	public ActivityState activityState() {
@@ -70,6 +70,10 @@ public class MobMind {
 		return perceptionMemory;
 	}
 
+	public MobAIAdapter adapter() {
+		return adapter;
+	}
+
 	/** Adds suspicion and refreshes the non-combat alert state. */
 	public void addSuspicion(float amount) {
 		suspicionMemory.addSuspicion(amount);
@@ -89,11 +93,16 @@ public class MobMind {
 	 * @return the amount added, or zero for a null event
 	 */
 	public float processPerceptionEvent(PerceptionEvent event) {
+		if (!isValidPerceptionEvent(event)) return 0f;
 		float gain = calculateSuspicionGain(event);
 		addSuspicion(gain);
 		perceptionMemory.remember(event);
 		if (isConfirmedTarget(event)) alertState = AlertState.COMBAT;
 		return gain;
+	}
+
+	private static boolean isValidPerceptionEvent(PerceptionEvent event) {
+		return event != null && event.intensity > 0f && !event.isExpired(Actor.now());
 	}
 
 	/**
